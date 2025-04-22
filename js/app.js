@@ -1,7 +1,7 @@
 const app = Vue.createApp({
     data() {
         return {
-            message: 'prueba de concexion con vue',
+            mensaje: 'prueba de concexion con vue',
         };
     }
 });
