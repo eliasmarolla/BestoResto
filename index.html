@@ -7,12 +7,14 @@
         <title>BestoResto</title>
     </head>
     <body>
-        <header>
-            <h1>BestoResto, tus pedidos al instante.</h1>
-        </header>
+        
+        
         <main>
             <section id="app" v-cloak>
-                {{mensaje}}
+                <h1>{{titulo}}</h1>
+                <button @click="mostrarmenu" v-if="carta == false">ver menu </button>
+                <mi-carta v-if="carta" v-bind:menu="menu"></mi-carta>
+                
             </section>
         </main>
         <footer>
