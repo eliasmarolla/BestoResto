@@ -1,5 +1,68 @@
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+body {
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	background-color: #fff8f0;
+	color: #333;
+	padding: 20px;
+}
+
+h1 {
+	font-size: 2.5rem;
+	text-align: center;
+	margin-bottom: 20px;
+	color: #d35400;
+}
+
+button {
+	display: block;
+	margin: 0 auto 30px auto;
+	padding: 10px 20px;
+	background-color: #e67e22;
+	color: white;
+	border: none;
+	border-radius: 10px;
+	font-size: 1rem;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+button:hover {
+	background-color: #d35400;
+}
+
+.carta {
+	max-width: 800px;
+	margin: 0 auto;
+	text-align: center;
+}
+
+.carta h2 {
+	font-size: 2rem;
+	margin-bottom: 20px;
+	color: #c0392b;
+}
+
+.carta div {
+	background-color: #fff;
+	margin-bottom: 20px;
+	padding: 20px;
+	border-radius: 15px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.carta img {
+	width: 100%;
+	max-width: 300px;
+	height: auto;
+	border-radius: 10px;
+}
+
+.carta h3 {
+	font-size: 1.5rem;
+	margin: 10px 0 5px;
+}
+
+footer {
+	text-align: center;
+	margin-top: 40px;
+	color: #888;
 }
