@@ -14,6 +14,8 @@
                 <h1>{{titulo}}</h1>
                 <button @click="mostrarmenu" v-if="carta == false">ver menu </button>
                 <mi-carta v-if="carta" v-bind:menu="menu"></mi-carta>
+                 
+                <comando-ordenes v-bind:menu="menu"></comando-ordenes>
                 
             </section>
         </main>
