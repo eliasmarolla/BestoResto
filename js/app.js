@@ -154,7 +154,7 @@ app.component('comando-ordenes', {
             nombre: '',
             telefono: '',
             direccion: '',
-            pedido: '',
+            principal: '',
             opcion: '',
             cantidad: 1,
             observaciones: '',
@@ -174,32 +174,46 @@ app.component('comando-ordenes', {
         <div v-if="nuevaOrden">
             <h2>Generar Orden</h2>
             <p>Por favor complete el siguiente formulario:</p>
-        <form>
-        <div>
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" v-model="nombre" required>
-            <label for="telefono">Teléfono:</label>
-            <input type="tel" id="telefono" v-model="telefono" required>
-            <label for="direccion">Dirección:</label>
-            <input type="text" id="direccion" v-model="direccion" required>
-        </div>
-        <div>
-            <label for="pedido">principal:</label>
-            <select id="pedido" v-model="pedido" required>
-                <option value="" disabled selected>Seleccione un plato</option>
-                <option v-for="x in menu" :value="x.plato">{{ x.plato }}</option>
-            </select>
-            <label for="opcion">Opción:</label>
-            <select id="opcion" v-model="opcion" required>
-                <option value="" disabled selected>Seleccione una opción</option>
-                <option v-for="x in menu" :value="x.opciones">{{ x.opciones }}</option>
-            </select>
-            <label for="cantidad">Cantidad:</label>
-            <input type="number" id="cantidad" v-model="cantidad" min="1" required>
-        </div>
-
-            
-        </form>
+            <form>
+                <div>
+                    <label for="nombre">Nombre:</label>
+                    <input type="text" id="nombre" v-model="nombre" required>
+                    <label for="telefono">Teléfono:</label>
+                    <input type="tel" id="telefono" v-model="telefono" required>
+                    <label for="direccion">Dirección:</label>
+                    <input type="text" id="direccion" v-model="direccion" required>
+                </div>
+                <div>
+                    <div>
+                        <select id="principal" v-model="principal" required>
+                            <option value="" disabled selected>Seleccione un plato</option>
+                            <option v-for="x in menu" :value="x.plato">{{ x.plato }}</option>
+                        </select>
+                    </div>
+    
+                    <div v-if="principal != ''">
+                        <select id="opcion" v-model="opcion" required>
+                            <option value="" disabled selected>Seleccione una opción</option>
+                            <template v-for="x in menu">
+                                <template v-if="x.plato == principal">
+                                <option v-for="o in x.opciones" :value="o.nombre">{{ o.nombre }}</option>
+                                </template>
+                            </template>
+                        </select>
+    
+                    </div>
+                    <div v-if="opcion != ''">
+    
+                        <label for="cantidad">Cantidad:</label>
+                        <input type="number" id="cantidad" v-model="cantidad" min="1" required>
+                    </div>
+    
+                    <div v-if="opcion != ''">
+                        <label for="observaciones">Observaciones:</label>
+                        <textarea id="observaciones" v-model="observaciones" placeholder="Escriba sus observaciones aquí..."></textarea>
+                    </div>
+                </div>
+            </form>
         </div>
     `
 });
