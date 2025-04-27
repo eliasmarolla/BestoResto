@@ -155,6 +155,8 @@ app.component('comando-ordenes', {
             telefono: '',
             direccion: '',
             principal: '',
+            orden:[],
+            pedido: [],
             opcion: '',
             cantidad: 1,
             observaciones: '',
@@ -165,6 +167,30 @@ app.component('comando-ordenes', {
         generarOrden()
             {
                 this.nuevaOrden = true;
+            },
+        enviarOrden(){
+            this.orden.push({
+                nombre: this.nombre,
+                telefono: this.telefono,
+                direccion: this.direccion,
+                pedido: this.pedido
+            });
+            this.nombre = '';
+            this.telefono = '';
+            this.direccion = '';
+            this.pedido = [];
+            },
+        agregarAlPedido(){
+            this.pedido.push({
+                plato: this.principal,
+                opcion: this.opcion,
+                cantidad: this.cantidad,
+                observaciones: this.observaciones
+            });
+            this.principal = '';
+            this.opcion = '';
+            this.cantidad = 1;
+            this.observaciones = '';
             }
     },
     template: `
@@ -174,7 +200,7 @@ app.component('comando-ordenes', {
         <div v-if="nuevaOrden">
             <h2>Generar Orden</h2>
             <p>Por favor complete el siguiente formulario:</p>
-            <form>
+            <form @submit.prevent>
                 <div>
                     <label for="nombre">Nombre:</label>
                     <input type="text" id="nombre" v-model="nombre" required>
@@ -190,7 +216,7 @@ app.component('comando-ordenes', {
                             <option v-for="x in menu" :value="x.plato">{{ x.plato }}</option>
                         </select>
                     </div>
-    
+
                     <div v-if="principal != ''">
                         <select id="opcion" v-model="opcion" required>
                             <option value="" disabled selected>Seleccione una opción</option>
@@ -200,20 +226,37 @@ app.component('comando-ordenes', {
                                 </template>
                             </template>
                         </select>
-    
+
                     </div>
                     <div v-if="opcion != ''">
-    
+
                         <label for="cantidad">Cantidad:</label>
                         <input type="number" id="cantidad" v-model="cantidad" min="1" required>
                     </div>
-    
+
                     <div v-if="opcion != ''">
                         <label for="observaciones">Observaciones:</label>
                         <textarea id="observaciones" v-model="observaciones" placeholder="Escriba sus observaciones aquí..."></textarea>
                     </div>
                 </div>
+
+                
+                <button type="submit" @click="agregarAlPedido">agregar</button>
+
+
+                
             </form>
+            <div v-if="pedido.length > 0">
+                <h2>Pedido</h2>
+                <ul>
+                    <li v-for="x in pedido">
+                        <p>{{ x.plato }}: {{ x.opcion }} ({{ x.cantidad }})</p>
+                        <p>Observaciones: {{ x.observaciones }}</p>
+                    </li>
+                </ul>
+                <button type="button" @click="enviarOrden">Enviar Orden</button>
+                <button type="button" @click="cancelarOrden">Cancelar</button>
+            </div>
         </div>
     `
 });
