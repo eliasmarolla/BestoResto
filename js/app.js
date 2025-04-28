@@ -123,9 +123,12 @@ const app = Vue.createApp({
         }
     },
     methods: {
-        mostrarmenu(){
+        mostrarMenu(){
             this.carta = true;
-        }
+        },
+        ocultarMenu(){
+            this.carta = false;
+        },
     },
 });
 
@@ -143,59 +146,92 @@ app.component('mi-carta', {
                         <p>{{ opcion.descripcion }} .......<span>Precio:$ {{ opcion.precio }}</span></p>
                         
                     </li>
+                </ul>
             </div>
         </div>
     `
 });
+
+
+
 app.component('comando-ordenes', {
     props: ['menu'],
     data() {
         return {
-            nombre: '',
-            telefono: '',
-            direccion: '',
             principal: '',
-            orden:[],
-            pedido: [],
             opcion: '',
             cantidad: 1,
             observaciones: '',
-            nuevaOrden: false
-        };
+            total: 0,
+            orden:{
+                nombre: '',
+                telefono: '',
+                direccion: '',
+                pedido: [],   
+            },
+            nuevaOrden: false,
+            ordenes:[],
+            mostrarOrdenes: false,
+     };
     },
     methods: {
         generarOrden()
             {
                 this.nuevaOrden = true;
             },
-        enviarOrden(){
-            this.orden.push({
-                nombre: this.nombre,
-                telefono: this.telefono,
-                direccion: this.direccion,
-                pedido: this.pedido
+        enviarOrden(orden){
+            var localData = localStorage.getItem('ordenes');            
+            this.ordenes = localData ? JSON.parse(localData) : [];
+            this.ordenes.push({
+                nombre: orden.nombre,
+                telefono: orden.telefono,
+                direccion: orden.direccion,
+                pedido: orden.pedido
             });
-            this.nombre = '';
-            this.telefono = '';
-            this.direccion = '';
-            this.pedido = [];
+            localStorage.setItem('ordenes', JSON.stringify(this.ordenes));
+            this.orden = {
+                nombre : '',
+                telefono : '',
+                direccion : '',
+                pedido : []
+                };
             },
         agregarAlPedido(){
-            this.pedido.push({
-                plato: this.principal,
+            this.total = this.menu.find(x => x.plato == this.principal).opciones.find(o => o.nombre == this.opcion).precio;
+            this.orden.pedido.push({
                 opcion: this.opcion,
                 cantidad: this.cantidad,
-                observaciones: this.observaciones
+                observaciones: this.observaciones,
+                valor: this.total
             });
             this.principal = '';
             this.opcion = '';
             this.cantidad = 1;
             this.observaciones = '';
-            }
+            this.total = 0;
+            
+            },
+        cancelarOrden(){
+            this.nuevaOrden = false;
+            this.orden.nombre = '';
+            this.orden.telefono = '';
+            this.orden.direccion = '';
+            this.orden.pedido = [];
+            this.principal = '';
+            this.opcion = '';
+            this.cantidad = 1;
+            this.observaciones = '';
+        },
+        mostrarOrdenesGuardadas(){
+            this.mostrarOrdenes = true;
+        },
+        ocultarOrdenesGuardadas(){
+            this.mostrarOrdenes = false;
+        },
     },
     template: `
         <div>
-        <button @click="generarOrden" v-if="nuevaOrden == false">Generar nueva orden</button>
+            <button @click="generarOrden" v-if="nuevaOrden == false">Generar nueva orden</button>
         </div>
         <div v-if="nuevaOrden">
             <h2>Generar Orden</h2>
@@ -203,11 +239,11 @@ app.component('comando-ordenes', {
             <form @submit.prevent>
                 <div>
                     <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" v-model="nombre" required>
+                    <input type="text" id="nombre" v-model="orden.nombre" required>
                     <label for="telefono">Teléfono:</label>
-                    <input type="tel" id="telefono" v-model="telefono" required>
+                    <input type="tel" id="telefono" v-model="orden.telefono" required>
                     <label for="direccion">Dirección:</label>
-                    <input type="text" id="direccion" v-model="direccion" required>
+                    <input type="text" id="direccion" v-model="orden.direccion" required>
                 </div>
                 <div>
                     <div>
@@ -222,14 +258,13 @@ app.component('comando-ordenes', {
                             <option value="" disabled selected>Seleccione una opción</option>
                             <template v-for="x in menu">
                                 <template v-if="x.plato == principal">
-                                <option v-for="o in x.opciones" :value="o.nombre">{{ o.nombre }}</option>
+                                    <option v-for="o in x.opciones" :value="o.nombre">{{ o.nombre }}</option>
                                 </template>
                             </template>
                         </select>
-
                     </div>
-                    <div v-if="opcion != ''">
 
+                    <div v-if="opcion != ''">
                         <label for="cantidad">Cantidad:</label>
                         <input type="number" id="cantidad" v-model="cantidad" min="1" required>
                     </div>
@@ -238,24 +273,61 @@ app.component('comando-ordenes', {
                         <label for="observaciones">Observaciones:</label>
                         <textarea id="observaciones" v-model="observaciones" placeholder="Escriba sus observaciones aquí..."></textarea>
                     </div>
+
+                    <div>
+                        <p v-if="opcion != ''">Total: 
+                            <template v-for="x in menu">
+                                <template v-if="x.plato == principal">
+                                    <template v-for="o in x.opciones">
+                                        <template v-if="o.nombre == opcion">
+                                            $  <span id="total">{{ o.precio * cantidad }} </span>
+                                        </template>
+                                    </template>
+                                </template>
+                            </template>
+                        </p>
+                    </div>
+                    
+                    
+                    <button type="submit" @click="agregarAlPedido" v-if="opcion != ''">agregar</button>
                 </div>
-
-                
-                <button type="submit" @click="agregarAlPedido">agregar</button>
-
-
-                
             </form>
-            <div v-if="pedido.length > 0">
-                <h2>Pedido</h2>
-                <ul>
-                    <li v-for="x in pedido">
-                        <p>{{ x.plato }}: {{ x.opcion }} ({{ x.cantidad }})</p>
-                        <p>Observaciones: {{ x.observaciones }}</p>
-                    </li>
-                </ul>
-                <button type="button" @click="enviarOrden">Enviar Orden</button>
-                <button type="button" @click="cancelarOrden">Cancelar</button>
+
+            <div v-if="orden.pedido.length > 0">
+                    <h2>Pedido</h2>
+                    <ul>
+                        <li v-for="x in orden.pedido">
+                            <p>{{ x.opcion }} x {{ x.cantidad }}</p>
+                            <p v-if="x.observaciones.length > 0 ">Observaciones: {{ x.observaciones }}</p>
+                            <p>Precio: $ {{ x.valor }}</p>
+                            <p>Subtotal: $ {{ x.valor * x.cantidad }}</p>
+                        </li>
+                    </ul>
+
+                    <button type="button" @click="enviarOrden(orden)">Enviar Orden</button>
+                    <button type="button" @click="cancelarOrden">Cancelar</button>
+            </div>
+            <div v-if="ordenes.length > 0">
+                <button type="button" @click="mostrarOrdenesGuardadas" v-if="mostrarOrdenes == false">Mostrar ordenes guardadas</button>
+                <div v-if="mostrarOrdenes">
+                    <h2>Órdenes guardadas</h2>
+                    <ul>
+                        <li v-for="p in ordenes">
+                            <p>Nombre: {{ p.nombre }}</p>
+                            <p>Teléfono: {{ p.telefono }}</p>
+                            <p>Dirección: {{ p.direccion }}</p>
+                            <ul>
+                                <li v-for="x in p.pedido">
+                                    <p>{{ x.opcion }} x {{ x.cantidad }}</p>
+                                    <p v-if="x.observaciones.length > 0 ">Observaciones: {{ x.observaciones }}</p>
+                                    <p>Precio: $ {{ x.valor }}</p>
+                                    <p>Subtotal: $ {{ x.valor * x.cantidad }}</p>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <button type="button" @click="ocultarOrdenesGuardadas">Ocultar ordenes guardadas</button>
+                </div>
             </div>
         </div>
     `
