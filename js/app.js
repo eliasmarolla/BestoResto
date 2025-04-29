@@ -172,6 +172,7 @@ app.component('comando-ordenes', {
             nuevaOrden: false,
             ordenes:[],
             mostrarOrdenes: false,
+            alerta:""
      };
     },
     methods: {
@@ -197,20 +198,38 @@ app.component('comando-ordenes', {
                 };
             },
         agregarAlPedido(){
-            this.total = this.menu.find(x => x.plato == this.principal).opciones.find(o => o.nombre == this.opcion).precio;
-            this.orden.pedido.push({
-                opcion: this.opcion,
-                cantidad: this.cantidad,
-                observaciones: this.observaciones,
-                valor: this.total
-            });
-            this.principal = '';
-            this.opcion = '';
-            this.cantidad = 1;
-            this.observaciones = '';
-            this.total = 0;
+            if(this.nombre == ""){
+                this.alerta = "Debe ingresar un nombre";
+            }else{
+                if(this.telefono == ""){
+                    this.alerta= "Debe ingresar un numero de telofono";
+                }else{
+                    if(this.direccion == ""){
+                        this.alerta = "Debe ingresar una direccion";
+                    }else {
+                        if(this.alerta == ""){
+
+                            
+                            
+                            
+                            
+                            this.total = this.menu.find(x => x.plato == this.principal).opciones.find(o => o.nombre == this.opcion).precio;
+                            this.orden.pedido.push({
+                                opcion: this.opcion,
+                                cantidad: this.cantidad,
+                                observaciones: this.observaciones,
+                                valor: this.total
+                            });
+                            this.principal = '';
+                            this.opcion = '';
+                            this.cantidad = 1;
+                            this.observaciones = '';
+                            this.total = 0;
+                        }
+                }
             
-            },
+            
+            }}},
         cancelarOrden(){
             this.nuevaOrden = false;
             this.orden.nombre = '';
@@ -288,7 +307,9 @@ app.component('comando-ordenes', {
                         </p>
                     </div>
                     
-                    
+                    <div v-if="alerta =! false">
+                        <p>{{alerta}}</p>
+                    </div>
                     <button type="submit" @click="agregarAlPedido" v-if="opcion != ''">agregar</button>
                 </div>
             </form>
