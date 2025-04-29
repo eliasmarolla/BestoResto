@@ -197,39 +197,37 @@ app.component('comando-ordenes', {
                 pedido : []
                 };
             },
-        agregarAlPedido(){
-            if(this.nombre == ""){
-                this.alerta = "Debe ingresar un nombre";
-            }else{
-                if(this.telefono == ""){
-                    this.alerta= "Debe ingresar un numero de telofono";
-                }else{
-                    if(this.direccion == ""){
-                        this.alerta = "Debe ingresar una direccion";
-                    }else {
-                        if(this.alerta == ""){
-
-                            
-                            
-                            
-                            
-                            this.total = this.menu.find(x => x.plato == this.principal).opciones.find(o => o.nombre == this.opcion).precio;
-                            this.orden.pedido.push({
-                                opcion: this.opcion,
-                                cantidad: this.cantidad,
-                                observaciones: this.observaciones,
-                                valor: this.total
-                            });
-                            this.principal = '';
-                            this.opcion = '';
-                            this.cantidad = 1;
-                            this.observaciones = '';
-                            this.total = 0;
-                        }
+            agregarAlPedido() {
+                if (this.orden.nombre.trim() === "") {
+                    this.alerta = "Debe ingresar un nombre";
+                    return;
+                }
+                if (this.orden.telefono.trim() === "") {
+                    this.alerta = "Debe ingresar un número de teléfono";
+                    return;
+                }
+                if (this.orden.direccion.trim() === "") {
+                    this.alerta = "Debe ingresar una dirección";
+                    return;
                 }
             
+                this.alerta = "";
             
-            }}},
+                this.total = this.menu.find(x => x.plato === this.principal).opciones.find(o => o.nombre === this.opcion).precio;
+            
+                this.orden.pedido.push({
+                    opcion: this.opcion,
+                    cantidad: this.cantidad,
+                    observaciones: this.observaciones,
+                    valor: this.total
+                });
+            
+                this.principal = '';
+                this.opcion = '';
+                this.cantidad = 1;
+                this.observaciones = '';
+                this.total = 0;
+            },
         cancelarOrden(){
             this.nuevaOrden = false;
             this.orden.nombre = '';
@@ -258,11 +256,11 @@ app.component('comando-ordenes', {
             <form @submit.prevent>
                 <div>
                     <label for="nombre">Nombre:</label>
-                    <input type="text" id="nombre" v-model="orden.nombre" required>
+                    <input type="text" id="nombre" v-model="orden.nombre" :class="{'input-error': orden.nombre.trim() === '', 'input-ok': orden.nombre.trim() !== ''}" required>
                     <label for="telefono">Teléfono:</label>
-                    <input type="tel" id="telefono" v-model="orden.telefono" required>
+                    <input type="tel" id="telefono" v-model="orden.telefono" :class="{'input-error': orden.telefono.trim() === '', 'input-ok': orden.telefono.trim() !== ''}" required>
                     <label for="direccion">Dirección:</label>
-                    <input type="text" id="direccion" v-model="orden.direccion" required>
+                    <input type="text" id="direccion" v-model="orden.direccion" :class="{'input-error': orden.direccion.trim() === '', 'input-ok': orden.direccion.trim() !== ''}" required>
                 </div>
                 <div>
                     <div>
@@ -307,8 +305,8 @@ app.component('comando-ordenes', {
                         </p>
                     </div>
                     
-                    <div v-if="alerta =! false">
-                        <p>{{alerta}}</p>
+                    <div v-if="alerta" class="alerta">
+                        <p>{{ alerta }}</p>
                     </div>
                     <button type="submit" @click="agregarAlPedido" v-if="opcion != ''">agregar</button>
                 </div>
