@@ -172,7 +172,8 @@ app.component('comando-ordenes', {
             nuevaOrden: false,
             ordenes:[],
             mostrarOrdenes: false,
-            alerta:""
+            alerta: false,
+            aviso:[]
      };
     },
     methods: {
@@ -181,53 +182,81 @@ app.component('comando-ordenes', {
                 this.nuevaOrden = true;
             },
         enviarOrden(orden){
-            var localData = localStorage.getItem('ordenes');            
-            this.ordenes = localData ? JSON.parse(localData) : [];
-            this.ordenes.push({
-                nombre: orden.nombre,
-                telefono: orden.telefono,
-                direccion: orden.direccion,
-                pedido: orden.pedido
-            });
-            localStorage.setItem('ordenes', JSON.stringify(this.ordenes));
-            this.orden = {
-                nombre : '',
-                telefono : '',
-                direccion : '',
-                pedido : []
+            if (this.orden.nombre.trim() === ""|| this.orden.telefono.trim() === "" || this.orden.direccion.trim() === "") {
+                this.aviso = [];
+                this.alerta = true;
+                this.aviso.push("No puede enviar la orden sin completar los datos");
+            }else{
+                this.aviso = [];
+                this.alerta = false;
+                var localData = localStorage.getItem('ordenes');            
+                this.ordenes = localData ? JSON.parse(localData) : [];
+                this.ordenes.push({
+                    nombre: orden.nombre,
+                    telefono: orden.telefono,
+                    direccion: orden.direccion,
+                    pedido: orden.pedido
+                });
+                localStorage.setItem('ordenes', JSON.stringify(this.ordenes));
+                this.orden = {
+                    nombre : '',
+                    telefono : '',
+                    direccion : '',
+                    pedido : []
                 };
+                this.nuevaOrden = false;
+            }
             },
             agregarAlPedido() {
-                if (this.orden.nombre.trim() === "") {
-                    this.alerta = "Debe ingresar un nombre";
-                    return;
+                this.aviso = [];
+                if (this.orden.nombre.trim() === ""&& this.orden.telefono.trim() === "" && this.orden.direccion.trim() === "") {    
+                    this.alerta = true;
+                    this.aviso.push("Debe ingresar un nombre");
+                    this.aviso.push("Debe ingresar un número de teléfono");
+                    this.aviso.push("Debe ingresar una dirección");
+                }else if (this.orden.nombre.trim() === ""&& this.orden.telefono.trim() === "") {
+                    this.alerta = true;
+                    this.aviso.push("Debe ingresar un nombre");
+                    this.aviso.push("Debe ingresar un número de teléfono");
+                }else if (this.orden.nombre.trim() === ""&& this.orden.direccion.trim() === "") {
+                    this.alerta = true;
+                    this.aviso.push("Debe ingresar un nombre");
+                    this.aviso.push("Debe ingresar una dirección");
+                }else if (this.orden.telefono.trim() === ""&& this.orden.direccion.trim() === "") {
+                    this.alerta = true;
+                    this.aviso.push("Debe ingresar un número de teléfono");
+                    this.aviso.push("Debe ingresar una dirección");
+                }else if (this.orden.nombre.trim() === "") {
+                    this.alerta = true;
+                    this.aviso.push("Debe ingresar un nombre");
+                }else if (this.orden.direccion.trim() === "") {
+                    this.alerta = true;
+                    this.aviso.push("Debe ingresar una dirección");
+                }else if (this.orden.telefono.trim() === "") {
+                    this.alerta = true;
+                    this.aviso.push("Debe ingresar un número de teléfono");
+                
+                }else{
+
+                    
+                    this.alerta = false;
+                    this.aviso = [];
+                    this.total = this.menu.find(x => x.plato === this.principal).opciones.find(o => o.nombre === this.opcion).precio;
+                    
+                    this.orden.pedido.push({
+                        opcion: this.opcion,
+                        cantidad: this.cantidad,
+                        observaciones: this.observaciones,
+                        valor: this.total
+                    });
+                    
+                    this.principal = '';
+                    this.opcion = '';
+                    this.cantidad = 1;
+                    this.observaciones = '';
+                    this.total = 0;
                 }
-                if (this.orden.telefono.trim() === "") {
-                    this.alerta = "Debe ingresar un número de teléfono";
-                    return;
-                }
-                if (this.orden.direccion.trim() === "") {
-                    this.alerta = "Debe ingresar una dirección";
-                    return;
-                }
-            
-                this.alerta = "";
-            
-                this.total = this.menu.find(x => x.plato === this.principal).opciones.find(o => o.nombre === this.opcion).precio;
-            
-                this.orden.pedido.push({
-                    opcion: this.opcion,
-                    cantidad: this.cantidad,
-                    observaciones: this.observaciones,
-                    valor: this.total
-                });
-            
-                this.principal = '';
-                this.opcion = '';
-                this.cantidad = 1;
-                this.observaciones = '';
-                this.total = 0;
-            },
+                },
         cancelarOrden(){
             this.nuevaOrden = false;
             this.orden.nombre = '';
@@ -252,7 +281,7 @@ app.component('comando-ordenes', {
         </div>
         <div v-if="nuevaOrden">
             <h2>Generar Orden</h2>
-            <p>Por favor complete el siguiente formulario:</p>
+            
             <form @submit.prevent>
                 <div>
                     <label for="nombre">Nombre:</label>
@@ -305,8 +334,10 @@ app.component('comando-ordenes', {
                         </p>
                     </div>
                     
-                    <div v-if="alerta" class="alerta">
-                        <p>{{ alerta }}</p>
+                    <div :class="alerta ? 'alerta' : 'ocultar'" >
+                        <ul>
+                            <li v-for="x in aviso">{{ x }}</li>
+                        </ul>
                     </div>
                     <button type="submit" @click="agregarAlPedido" v-if="opcion != ''">agregar</button>
                 </div>
@@ -326,27 +357,27 @@ app.component('comando-ordenes', {
                     <button type="button" @click="enviarOrden(orden)">Enviar Orden</button>
                     <button type="button" @click="cancelarOrden">Cancelar</button>
             </div>
-            <div v-if="ordenes.length > 0">
-                <button type="button" @click="mostrarOrdenesGuardadas" v-if="mostrarOrdenes == false">Mostrar ordenes guardadas</button>
-                <div v-if="mostrarOrdenes">
-                    <h2>Órdenes guardadas</h2>
-                    <ul>
-                        <li v-for="p in ordenes">
-                            <p>Nombre: {{ p.nombre }}</p>
-                            <p>Teléfono: {{ p.telefono }}</p>
-                            <p>Dirección: {{ p.direccion }}</p>
-                            <ul>
-                                <li v-for="x in p.pedido">
-                                    <p>{{ x.opcion }} x {{ x.cantidad }}</p>
-                                    <p v-if="x.observaciones.length > 0 ">Observaciones: {{ x.observaciones }}</p>
-                                    <p>Precio: $ {{ x.valor }}</p>
-                                    <p>Subtotal: $ {{ x.valor * x.cantidad }}</p>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                    <button type="button" @click="ocultarOrdenesGuardadas">Ocultar ordenes guardadas</button>
-                </div>
+        </div>
+        <div v-if="ordenes.length > 0">
+            <button type="button" @click="mostrarOrdenesGuardadas" v-if="mostrarOrdenes == false">Mostrar ordenes guardadas</button>
+            <div v-if="mostrarOrdenes">
+                <h2>Órdenes guardadas</h2>
+                <ul>
+                    <li v-for="p in ordenes">
+                        <p>Nombre: {{ p.nombre }}</p>
+                        <p>Teléfono: {{ p.telefono }}</p>
+                        <p>Dirección: {{ p.direccion }}</p>
+                        <ul>
+                            <li v-for="x in p.pedido">
+                                <p>{{ x.opcion }} x {{ x.cantidad }}</p>
+                                <p v-if="x.observaciones.length > 0 ">Observaciones: {{ x.observaciones }}</p>
+                                <p>Precio: $ {{ x.valor }}</p>
+                                <p>Subtotal: $ {{ x.valor * x.cantidad }}</p>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+                <button type="button" @click="ocultarOrdenesGuardadas">Ocultar ordenes guardadas</button>
             </div>
         </div>
     `

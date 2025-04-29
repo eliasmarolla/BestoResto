@@ -1,3 +1,8 @@
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
 body {
 	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 	background-color: #fff8f0;
@@ -135,6 +140,7 @@ footer {
 .input-error {
 	border: 2px solid red !important;
 	outline: none;
+	max-width: 100%;
 }
 
 .input-ok {
