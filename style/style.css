@@ -147,3 +147,14 @@ footer {
 	border: 2px solid green !important;
 	outline: none;
 }
+
+.alerta{
+	color: red;
+    font-weight: bold;
+    margin: 10px 0;
+    text-align: center;
+
+}
+.ocultar{
+	display: none;
+}
